@@ -10,6 +10,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.JFileChooser;
 import controller.Protocol;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 /**
@@ -39,6 +43,11 @@ public class JFrameLearner extends javax.swing.JFrame {
         fileChooser = new javax.swing.JFileChooser();
         jScrollPane1 = new javax.swing.JScrollPane();
         textarea = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextPane1 = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         Open = new javax.swing.JMenuItem();
@@ -51,6 +60,29 @@ public class JFrameLearner extends javax.swing.JFrame {
         textarea.setColumns(20);
         textarea.setRows(5);
         jScrollPane1.setViewportView(textarea);
+
+        jButton1.setText("Train Dataset");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setText("Test Dataset");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Browse File");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jScrollPane2.setViewportView(jTextPane1);
 
         jMenu1.setText("File");
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
@@ -84,16 +116,35 @@ public class JFrameLearner extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(67, 67, 67)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(62, 62, 62))
+            .addGroup(layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(179, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(20, 20, 20)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton3)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
+                .addContainerGap())
         );
 
         pack();
@@ -105,16 +156,17 @@ public class JFrameLearner extends javax.swing.JFrame {
         int returnVal = fileChooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
-            try {
+            //try {
           // What to do with the file, e.g. display it in a TextArea
             fileLocation = file.getAbsolutePath();
-            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol
+            System.out.println(fileLocation);
+            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
             textarea.setEditable(false);
-            textarea.read( new FileReader( file.getAbsolutePath() ), null );
+            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
             textarea.append("You succesfully added a file to the learner");
-            } catch (IOException ex) {
+            // catch (IOException ex) {
             System.out.println("problem accessing file"+file.getAbsolutePath());
-            }
+            //}
     } else {
         System.out.println("File access cancelled by user.");
     }
@@ -130,31 +182,67 @@ public class JFrameLearner extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    String className = JOptionPane.showInputDialog("What class do you want to train?", "");
+    textarea.removeAll();
+    textarea.append("You will train on " + className);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+               int returnVal = fileChooser.showOpenDialog(this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+            //try {
+          // What to do with the file, e.g. display it in a TextArea
+            fileLocation = file.getAbsolutePath();
+            System.out.println(fileLocation);
+            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
+            textarea.setEditable(false);
+            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
+            //textarea.append("You succesfully added a file to the learner " + fileLocation);
+            // catch (IOException ex) {
+            jTextPane1.setText(fileLocation);
+            System.out.println("problem accessing file"+file.getAbsolutePath());
+            //}
+    } else {
+        System.out.println("File access cancelled by user.");
+    }
+ 
+        
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        //try {
+         //   for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+         //       if ("Nimbus".equals(info.getName())) {
+         //           javax.swing.UIManager.setLookAndFeel(info.getClassName());
+         //           break;
+         //       }
+         //   }
+        //    JFrame.setDefaultLookAndFeelDecorated(true);
+        //} catch (ClassNotFoundException ex) {
+        //    java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        //} catch (InstantiationException ex) {
+        //    java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        //} catch (IllegalAccessException ex) {
+        //    java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        //} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        //    java.util.logging.Logger.getLogger(JFrameLearner.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        // }
         //</editor-fold>
 
         /* Create and display the form */
@@ -169,9 +257,14 @@ public class JFrameLearner extends javax.swing.JFrame {
     private javax.swing.JMenuItem Exit;
     private javax.swing.JMenuItem Open;
     private javax.swing.JFileChooser fileChooser;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTextArea textarea;
     // End of variables declaration//GEN-END:variables
 }
