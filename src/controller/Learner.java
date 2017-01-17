@@ -11,6 +11,8 @@ import java.util.Calendar;
 import java.util.Scanner;
 import view.JFrameLearner;
 
+import javax.swing.*;
+
 /*
  * MOD 6 - Intelligent Interaction Design
  * AI Project: Interactive Learner
@@ -26,16 +28,9 @@ public class Learner implements Protocol {
     private static boolean goOn = true;
     private static double total;
     private static double success;
-    public JFrameLearner jf;
+//    private Classifier classifier;
+//    private JFrameLearner jf;
     String prediction;
-    
-    /**
-     * Simple constructor for Learner class.
-     * @param jf 
-     */
-    public Learner(JFrameLearner jf) {
-        this.jf = jf;
-    }
 
     /**
      * Simple test to test and learn the classifier
@@ -43,14 +38,14 @@ public class Learner implements Protocol {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        Classifier cl = new Classifier();
-        while (goOn) {
-            cl.train();
-           // learn(cl);
-        }
-        System.out.println("Thank you!");
-    }
+//    public static void main(String[] args) throws IOException {
+//        Classifier cl = new Classifier();
+//        while (goOn) {
+//            cl.train();
+//           // learn(cl);
+//        }
+//        System.out.println("Thank you!");
+//    }
 
     /*
      * The classifier can learn from input
@@ -62,19 +57,22 @@ public class Learner implements Protocol {
 
     /**
      *
-     * @param c
      * @throws IOException
      */
 
     public void learn(Classifier c, JFrameLearner jf) throws IOException {
+        System.out.println("Learner initialized");
         String input = "";
-        Scanner scanner = new Scanner(System.in);
+//        Scanner scanner = new Scanner(System.in);
         //System.out.println("\nWelcome to the Interactive Learner!");
         //System.out.println("What do you want to classify?");
         //input = scanner.nextLine();
-        if (!input.equals("")) {
+        String predict = c.predict(jf.getClassifiable());
+        jf.getTextarea().setText("\nPrediction: " + predict + "\n");
+        System.out.println("Predict is: " + predict);
+        if (input.equals("")) {
             total += 1;
-            String predict = c.predict(jf.getClassifiable());
+            predict = c.predict(jf.getClassifiable());
             String prediction = ("\nWe predict: " + predict + "\n Do you agree? (y/n)");
             jf.predictionDialog(prediction);
             

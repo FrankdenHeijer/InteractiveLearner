@@ -15,6 +15,4 @@ public interface Protocol {
 
     int SMOOTHING_K = 1;
     int FEATURE_THRESHOLD = 5;
-
-
 }
