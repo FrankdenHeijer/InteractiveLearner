@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
+import view.JFrameLearner;
 
 /*
  * MOD 6 - Intelligent Interaction Design
@@ -25,6 +26,16 @@ public class Learner implements Protocol {
     private static boolean goOn = true;
     private static double total;
     private static double success;
+    public JFrameLearner jf;
+    String prediction;
+    
+    /**
+     * Simple constructor for Learner class.
+     * @param jf 
+     */
+    public Learner(JFrameLearner jf) {
+        this.jf = jf;
+    }
 
     /**
      * Simple test to test and learn the classifier
@@ -36,7 +47,7 @@ public class Learner implements Protocol {
         Classifier cl = new Classifier();
         while (goOn) {
             cl.train();
-            learn(cl);
+           // learn(cl);
         }
         System.out.println("Thank you!");
     }
@@ -48,27 +59,35 @@ public class Learner implements Protocol {
      * 		-	The classifier
      * @throws IOException
      */
-    public static void learn(Classifier c) throws IOException {
+
+    /**
+     *
+     * @param c
+     * @throws IOException
+     */
+
+    public void learn(Classifier c, JFrameLearner jf) throws IOException {
         String input = "";
         Scanner scanner = new Scanner(System.in);
-        System.out.println("\nWelcome to the Interactive Learner!");
-        System.out.println("What do you want to classify?");
-        input = scanner.nextLine();
+        //System.out.println("\nWelcome to the Interactive Learner!");
+        //System.out.println("What do you want to classify?");
+        //input = scanner.nextLine();
         if (!input.equals("")) {
             total += 1;
-            String predict = c.predict(input);
-            System.out.println("\nWe predict: " + predict);
-
-            System.out.println("\nDo you agree? (y/n)");
-            if (read()) {
+            String predict = c.predict(jf.getClassifiable());
+            String prediction = ("\nWe predict: " + predict + "\n Do you agree? (y/n)");
+            jf.predictionDialog(prediction);
+            
+            if (jf.getPredictionBoolean()) {
                 success += 1;
+                
                 System.out.println("We will add this to our vocabulary");
                 String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-                String classification = c.predict(input);
+                String classification = c.predict(jf.getClassifiable());
                 File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
 
                 FileWriter fw = new FileWriter(newTextFile);
-                fw.write(input);
+                fw.write(jf.getClassifiable());
                 fw.close();
             } else {
                 System.out.println("Which of the following classes do you think is right?");
@@ -76,7 +95,7 @@ public class Learner implements Protocol {
 
                 for (classes cl : classes.values()) {
                     String className = cl.name();
-                    if (className != c.predict(input)) {
+                    if (className != c.predict(jf.getClassifiable())) {
                         System.out.println("- " + className);
                         list.add(className);
                     }

@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import controller.Learner;
 
 
 /**
@@ -23,6 +24,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class JFrameLearner extends javax.swing.JFrame {
     
     public String fileLocation = "";
+    public String classifiable = "";
+    public Boolean predictionBoolean = false;
+    
+    public Boolean getPredictionBoolean() {
+       return predictionBoolean;
+    }
+    
+    public String getClassifiable(){
+        return classifiable;
+    }
 
     /**
      * Creates new form JFrameLearner
@@ -44,7 +55,6 @@ public class JFrameLearner extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         textarea = new javax.swing.JTextArea();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
@@ -57,21 +67,15 @@ public class JFrameLearner extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        textarea.setEditable(false);
         textarea.setColumns(20);
         textarea.setRows(5);
         jScrollPane1.setViewportView(textarea);
 
-        jButton1.setText("Train Dataset");
+        jButton1.setText("Test File");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        jButton2.setText("Test Dataset");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
             }
         });
 
@@ -82,6 +86,7 @@ public class JFrameLearner extends javax.swing.JFrame {
             }
         });
 
+        jTextPane1.setEditable(false);
         jScrollPane2.setViewportView(jTextPane1);
 
         jMenu1.setText("File");
@@ -115,12 +120,6 @@ public class JFrameLearner extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(67, 67, 67)
-                .addComponent(jButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(62, 62, 62))
             .addGroup(layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,6 +129,10 @@ public class JFrameLearner extends javax.swing.JFrame {
                         .addComponent(jScrollPane2))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(155, 155, 155)
+                .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -141,9 +144,7 @@ public class JFrameLearner extends javax.swing.JFrame {
                     .addComponent(jButton3)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                .addComponent(jButton1)
                 .addContainerGap())
         );
 
@@ -183,14 +184,12 @@ public class JFrameLearner extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    String className = JOptionPane.showInputDialog("What class do you want to train?", "");
-    textarea.removeAll();
-    textarea.append("You will train on " + className);
+        for (boolean i = true; i == true;) {
+            classifiable = JOptionPane.showInputDialog("What class do you want to classify?", "");
+            textarea.removeAll();
+        }
+    
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
@@ -211,11 +210,18 @@ public class JFrameLearner extends javax.swing.JFrame {
             //}
     } else {
         System.out.println("File access cancelled by user.");
-    }
- 
-        
+    }              
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    public void predictionDialog(String prediction) {
+        String pString = JOptionPane.showInputDialog("prediction");
+        if(pString == "y") {
+            predictionBoolean = true;
+        }
+        else{
+            predictionBoolean = false;
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -258,7 +264,6 @@ public class JFrameLearner extends javax.swing.JFrame {
     private javax.swing.JMenuItem Open;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
