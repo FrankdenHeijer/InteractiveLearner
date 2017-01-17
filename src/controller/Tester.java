@@ -1,41 +1,38 @@
 package controller;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.Scanner;
 import model.Classifier;
 
-/**
- * Tester class for the Interactive Learner.
- * The class will determine a score based on the used classifier and a given dataset.
+/*
+ * MOD 6 - Intelligent Interaction Design
+ * AI Project: Interactive Learner
+ *
+ * @author Merijn Kleinresingk & Frank den Heijer
+ * Created on: 20-12-2016
  */
-
-
 public class Tester implements Protocol {
     /**
     * Instance Variables
     */
     private double succeses;
     private double failures;
-    private double total;
-    
+//    private double total;
+
+
     /**
-    * Constructor of the tester class
-    * @param c
-    *           - Classifier instance
-    */
-    public Tester(Classifier c ) {
-        
-    }
-    
-    /**
-     * Main method for tester class. Actual testing will happen here
-     * @param args 
+     *Main method for tester class. Actual testing will happen here
+     *
+     * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) {
-        
+    public static void main(String[] args) throws IOException {
+        Classifier cl = new Classifier();
+        cl.train();
+        for(classes c : classes.values()){
+            String className = c.name();
+            measure(cl, TEST_LOCATION, className);
+        }
     }
     
     /**
@@ -47,8 +44,9 @@ public class Tester implements Protocol {
      * @name
      *          - Name of the tested class.
      */
-    public void measure(Classifier c, String place, String name) throws FileNotFoundException {
+    public static void measure(Classifier c, String place, String name) throws FileNotFoundException {
         File location = new File(place + name);
+        double total = 0;
         for(int i = 0; i < location.listFiles().length; i++) {
            File[] files = location.listFiles();
            if(files[i].isDirectory()) {

@@ -5,13 +5,14 @@ package controller;
  */
 public interface Protocol {
 
-    String FILE_LOCATION = "../blogs/training/";
-    String TEST_LOCATION = "../blogs/test/";
+    String FILE_LOCATION = "/Users/Frank/Desktop/blogs/";
+    String TEST_LOCATION = "/Users/Frank/Desktop/test/";
 
     enum classes {
-        MALE,
-        FEMALE
+        M,
+        F
     }
+
     int SMOOTHING_K = 1;
     int FEATURE_THRESHOLD = 5;
 
