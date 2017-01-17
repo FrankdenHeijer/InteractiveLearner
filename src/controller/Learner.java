@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import view.JFrameLearner;
 
 import javax.swing.*;
@@ -61,7 +62,6 @@ public class Learner implements Protocol {
      */
 
     public void learn(Classifier c, JFrameLearner jf) throws IOException {
-        System.out.println("Learner initialized");
         String input = "";
 //        Scanner scanner = new Scanner(System.in);
         //System.out.println("\nWelcome to the Interactive Learner!");
@@ -69,17 +69,50 @@ public class Learner implements Protocol {
         //input = scanner.nextLine();
         String predict = c.predict(jf.getClassifiable());
         jf.getTextarea().setText("\nPrediction: " + predict + "\n");
-        System.out.println("Predict is: " + predict);
         if (input.equals("")) {
             total += 1;
             predict = c.predict(jf.getClassifiable());
             String prediction = ("\nWe predict: " + predict + "\n Do you agree? (y/n)");
             jf.predictionDialog(prediction);
-            
-            if (jf.getPredictionBoolean()) {
+//            if (jf.getPredictionBoolean()) {
+//                success += 1;
+//                
+//                System.out.println("We will add this to our vocabulary");
+//                String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+//                String classification = c.predict(jf.getClassifiable());
+//                File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
+//
+//                FileWriter fw = new FileWriter(newTextFile);
+//                fw.write(jf.getClassifiable());
+//                fw.close();
+//            } else {
+//                System.out.println("Which of the following classes do you think is right?");
+//                ArrayList<String> list = new ArrayList<String>();
+//
+//                for (classes cl : classes.values()) {
+//                    String className = cl.name();
+//                    if (className != c.predict(jf.getClassifiable())) {
+//                        System.out.println("- " + className);
+//                        list.add(className);
+//                    }
+//                }
+  //              correct(list, input);
+    //        }
+        }
+//        else {
+//            System.out.println("This is not valid, please try again");
+//        }
+//        double acc = success / total * 100;
+//        System.out.println("Accuracy = " + acc + "%");
+//        System.out.println("Do you want to repeat? (y/n)");
+//        if (!read()) {
+//            goOn = false;
+//        }
+    }
+    
+    public void continueLearning(Classifier c, JFrameLearner jf) throws IOException {
                 success += 1;
-                
-                System.out.println("We will add this to our vocabulary");
+                jf.appendToTextarea("We will add this to our vocabulary");
                 String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
                 String classification = c.predict(jf.getClassifiable());
                 File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
@@ -87,32 +120,18 @@ public class Learner implements Protocol {
                 FileWriter fw = new FileWriter(newTextFile);
                 fw.write(jf.getClassifiable());
                 fw.close();
-            } else {
-                System.out.println("Which of the following classes do you think is right?");
-                ArrayList<String> list = new ArrayList<String>();
-
-                for (classes cl : classes.values()) {
-                    String className = cl.name();
-                    if (className != c.predict(jf.getClassifiable())) {
-                        System.out.println("- " + className);
-                        list.add(className);
-                    }
-                }
-                correct(list, input);
-            }
-        }
-        else {
-            System.out.println("This is not valid, please try again");
-        }
-        double acc = success / total * 100;
-        System.out.println("Accuracy = " + acc + "%");
-        System.out.println("Do you want to repeat? (y/n)");
-        if (!read()) {
-            goOn = false;
-        }
-
-
-
+//            } else {
+//                System.out.println("Which of the following classes do you think is right?");
+//                ArrayList<String> list = new ArrayList<String>();
+//
+//                for (classes cl : classes.values()) {
+//                    String className = cl.name();
+//                    if (className != c.predict(jf.getClassifiable())) {
+//                        System.out.println("- " + className);
+//                        list.add(className);
+//                    }
+//                }
+//    }
     }
 
     /*
