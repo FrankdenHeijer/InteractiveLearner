@@ -60,7 +60,5 @@ public class Tester implements Protocol {
            }
         }
     }
-   
-
 
 }
