@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 import model.Classifier;
 import controller.Tester;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 /**
@@ -292,9 +294,14 @@ public class JFrameLearner extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         if(!fileLocation.equals("")) {
+            Path p = Paths.get(fileLocation);
+            classifiable = p.getFileName().toString();
+            System.out.println(classifiable);
             try {
                 tester.measure(classifier, fileLocation, classifiable);
             } catch (FileNotFoundException ex) {
+                Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
                 Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
             }
                 }

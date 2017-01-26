@@ -12,6 +12,13 @@ import model.Classifier;
  * Created on: 20-12-2016
  */
 public class Tester implements Protocol {
+    /**
+    * Instance Variables
+    */
+    static int successes = 0;
+    static int failures = 0;
+//    private double total;
+
 
     /**
      *Main method for tester class. Actual testing will happen here
@@ -37,37 +44,28 @@ public class Tester implements Protocol {
      * @name
      *          - Name of the tested class.
      */
-    public static void measure(Classifier c, String place, String name) throws IOException {
-        File location = new File(place + name);
-        double total = 0;
-        double successes = 0;
-        double failures = 0;
+    public static void measure(Classifier c, String directoryLocation, String ClassName) throws FileNotFoundException, IOException {
+        File location = new File(directoryLocation);
+        System.out.println(location.listFiles().length);
         for(int i = 0; i < location.listFiles().length; i++) {
            File[] files = location.listFiles();
-           if(files[i].isDirectory()) {
-               measure(c, place, name);
+           BufferedReader r = new BufferedReader(new FileReader(files[i].getAbsolutePath()));
+           String content = "";
+           while(r.readLine() != null) {
+               content += r.readLine();
+           }
+           r.close();
+           String predict = c.predict(content);
+           if(predict.equals(ClassName)) {
+               successes ++;
            }
            else{
-               total ++;
-               BufferedReader r = new BufferedReader(new FileReader(files[i].getAbsolutePath()));
-               String content = "";
-               while (r.readLine() != null) {
-                   content += r.readLine();
-               }
-               r.close();
-               String predict = c.predict(content);
-               if(predict.equals(name)){
-                   successes += 1;
-               } else {
-                   failures += 1;
-               }
+               failures ++;
            }
+           System.out.println(successes + " " + failures);
+           }
+        System.out.println("s: " + successes + " f: " + failures );
         }
-        System.out.println("\n================" + name + "================");
-        System.out.println("Successes: " + successes);
-        System.out.println("Failures:  " + failures);
-        System.out.println("-----------------");
-        System.out.println("Accuracy : "+ (successes / total) * 100 + "%");
-        System.out.println("====================================");
     }
-}
+
+
