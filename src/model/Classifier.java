@@ -4,8 +4,7 @@ import controller.Protocol;
 
 import java.io.BufferedReader;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 /*
  * MOD 6 - Intelligent Interaction Design
@@ -19,37 +18,38 @@ public class Classifier implements Protocol {
     /**
      *  Instance variables
      */
-    private HashMap<String, HashMap<String, Integer>> allWords;
+    private HashMap<String, HashMap<String, Integer>> vocabulary;
     private double totalNumberOfDocs;
     private HashMap<String,Double> numberOfDocsPerClass;
 //    private double distinctWords;
-//    private HashMap<String,Double> numberOfWordsPerClass;
+    private HashMap<String,Integer> numberOfWordsPerClass;
+    private final double criticalValue = 10.83;
 
     /**
      *  Classifier constructor
      */
     public Classifier() {
-        allWords = new HashMap<String, HashMap<String, Integer>>();
+        vocabulary = new HashMap<String, HashMap<String, Integer>>();
         numberOfDocsPerClass = new HashMap<String, Double>();
 //        numberOfWordsPerClass = new HashMap<String, Double>();
 
     }
 
     /**
-     * Train the model (allWords) with the given training set
+     * Train the model (vocabulary) with the given training set
      *
      * @throws IOException
      */
     public void train() throws IOException {
         for (classes c : classes.values()) {
             String className = c.name();
-            allWords.put(className, new HashMap<String, Integer>());
+            vocabulary.put(className, new HashMap<String, Integer>());
             String location = FILE_LOCATION + className;
             File folder = new File(location);
             openFolder(folder, className);
         }
         selectFeatures();
-        getNumberOfWordsPerClass();
+//        getNumberOfWordsPerClass();
         double counter = 0;
         for(String c: numberOfDocsPerClass.keySet()){
             counter += numberOfDocsPerClass.get(c);
@@ -60,39 +60,34 @@ public class Classifier implements Protocol {
     /**
      * Counts the total amount of words for each class
      */
-    public HashMap<String,Double> getNumberOfWordsPerClass(){
-        HashMap<String,Double> temp = new HashMap<String,Double>();
-        for(classes c : classes.values()){
-            double counter = 0;
-            String className = c.name();
-            for(int v : allWords.get(className).values()) {
-                counter = counter + new Integer(v).doubleValue();
-            }
-            temp.put(className, counter);
-
+    public int getNumberOfWordsPerClass(String className){
+        int words = 0;
+        Map<String, Integer> wordsPerClas = vocabulary.get(className);
+        for (Integer value : wordsPerClas.values()) {
+            words += value;
         }
-        return temp;
+        return words;
     }
 
     /**
-     * Returns the distinct amount of words of the classes combined
+     * Returns the all unique words of the classes combined
      */
-    public double getDistinctWordsCount() {
-        ArrayList<String> features = new ArrayList<String>();
+    public List<String> getDistinctWords() {
+        ArrayList<String> distinctWords = new ArrayList<String>();
         for (classes c : classes.values()) {
-            String classname = c.name();
-            HashMap<String, Integer> subSet = allWords.get(classname);
-            for (String s : subSet.keySet()) {
-                if (!features.contains(s)) {
-                    features.add(s);
+//            String classname = c.name();
+            HashMap<String, Integer> subSet = vocabulary.get(c.name());
+            for (String word : subSet.keySet()) {
+                if (!distinctWords.contains(word)) {
+                    distinctWords.add(word);
                 }
             }
         }
-        return new Integer(features.size()).doubleValue();
+        return distinctWords;
     }
 
     /**
-     * Fills the allWords model with the training data
+     * Fills the vocabulary model with the training data
      *
      * @param folder
      *            - The folder where you can find the training data
@@ -116,13 +111,13 @@ public class Classifier implements Protocol {
                 String[] featureVector = prepare(content);
                 for (int i = 0; i < featureVector.length; i++){
                     String feature = featureVector[i];
-                    HashMap<String, Integer> subSet = allWords.get(className);
+                    HashMap<String, Integer> subSet = vocabulary.get(className);
                     if (subSet.containsKey(feature)) {
                         subSet.put(feature, subSet.get(feature) + 1);
                     } else {
                         subSet.put(feature, 1);
                     }
-                    allWords.put(className, subSet);
+                    vocabulary.put(className, subSet);
                 }
             }
         }
@@ -140,17 +135,102 @@ public class Classifier implements Protocol {
      * @return
      */
     public double getProbability(String className, String feature){
-        double count = getNumberOfWordsPerClass().get(className);
-        double denominator = (count + (SMOOTHING_K * getDistinctWordsCount()));
+        double count = getNumberOfWordsPerClass(className);
+        double denominator = (count + (SMOOTHING_K * getDistinctWords().size()));
         double probability = 0.0;
-        if (allWords.get(className).get(feature) != null) {
-            double counter = new Integer(allWords.get(className).get(feature)).doubleValue() + SMOOTHING_K;
+        if (vocabulary.get(className).get(feature) != null) {
+            double counter = new Integer(vocabulary.get(className).get(feature)).doubleValue() + SMOOTHING_K;
             probability = (counter) / (denominator);
         } else {
 
             probability = (SMOOTHING_K) / (denominator);
         }
         return probability;
+    }
+
+    /**
+     * Calculates the Chi square value of all the words in the vocabulary
+     * @return A Map of all the words with their respective chi square value.
+     */
+    public Map<String, Double> calcChiSquare() {
+        for (String className : vocabulary.keySet()) {
+            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
+        }
+        List<String> distinctWords = getDistinctWords();
+        Map<String, Double> chiSquareMapping = new HashMap<>();
+        for (String word : distinctWords) {
+            double chiSquare = calcChiSquare(word);
+            chiSquareMapping.put(word, chiSquare);
+        }
+        return chiSquareMapping;
+    }
+
+    public Double calcChiSquare(String word) {
+        double chiSquare = 0;
+        Set<String> classSet = vocabulary.keySet();
+        for (String className : classSet) {
+            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
+        }
+        List<List<Double>> wordCounts = new LinkedList<>();
+        List<Double> classCounts = new LinkedList<>();
+        double w1 = 0;
+        double w2 = 0;
+        double N = 0;
+        for (String className : classSet) {
+            double w = 0;
+            if (vocabulary.get(className).get(word) != null) {
+                w = vocabulary.get(className).get(word);
+            } else {
+                w = 0;
+            }
+            w1 += w;
+            double c = numberOfWordsPerClass.get(className);
+            classCounts.add(c);
+            N += c;
+            double notW = c-w;
+            w2 += notW;
+            LinkedList<Double> tuple = new LinkedList<>();
+            tuple.add(w);
+            tuple.add(notW);
+            wordCounts.add(tuple);
+        }
+        // Calculate the expected values
+        List<List<Double>> eValues = new LinkedList<List<Double>>();
+        for (double j : classCounts) {
+            LinkedList<Double> tuple = new LinkedList<Double>();
+            tuple.add((w1*j)/N);
+            tuple.add((w2*j)/N);
+            eValues.add(tuple);
+        }
+        // Calculate the Chi-Square values
+        for (int i = 0 ; i < eValues.size(); i++) {
+//            chiSquare += pow(wordCounts.get(i).get(0)-eValues.get(i).get(0), 2)/eValues.get(i).get(0);
+//            chiSquare += pow(wordCounts.get(i).get(1)-eValues.get(i).get(1), 2)/eValues.get(i).get(1);
+        }
+        return chiSquare;
+    }
+
+    /**
+     * Removes the words from the vocabulary that have a value lower than the critical value set.
+     * Because if they have a Chi square value lower than the critical value, they are not unique enough for a given class
+     */
+    public void removeOnChiSquare() {
+        Map<String, Double> chiMapping = calcChiSquare();
+        for (String className : vocabulary.keySet()) {
+            int i = 0;
+            Set<String> wordSet = vocabulary.get(className).keySet();
+            Iterator<String> iterator = wordSet.iterator();
+            while(iterator.hasNext()) {
+                String word = iterator.next();
+                if (chiMapping.get(word) < criticalValue) {
+                    iterator.remove();
+                    i++;
+                }
+            }
+            System.out.println("The word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
+            System.out.println("And has " + vocabulary.get(className).keySet().size() + " different words");
+        }
+
     }
 
     /**
@@ -192,7 +272,7 @@ public class Classifier implements Protocol {
     public void selectFeatures() {
         for (classes c : classes.values()) {
             String className = c.name();
-            HashMap<String, Integer> subSet = allWords.get(className);
+            HashMap<String, Integer> subSet = vocabulary.get(className);
             HashMap<String, Integer> newSubSet = new HashMap<String, Integer>();
             for (String s : subSet.keySet()){
                 int occurrence = subSet.get(s);
@@ -200,7 +280,7 @@ public class Classifier implements Protocol {
                     newSubSet.put(s, occurrence);
                 }
             }
-            allWords.put(className, newSubSet);
+            vocabulary.put(className, newSubSet);
         }
     }
 
