@@ -28,6 +28,7 @@ public class JFrameLearner extends javax.swing.JFrame {
     public String fileLocation = "";
     public String classifiable = "";
     public Boolean predictionBoolean;
+    public File fileUsed;
     
     public Boolean getPredictionBoolean() {
        return predictionBoolean;
@@ -84,6 +85,7 @@ public class JFrameLearner extends javax.swing.JFrame {
         jButton3 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        jButton2 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         Open = new javax.swing.JMenuItem();
@@ -101,11 +103,7 @@ public class JFrameLearner extends javax.swing.JFrame {
         jButton1.setText("Test File");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-                    jButton1ActionPerformed(evt);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                jButton1ActionPerformed(evt);
             }
         });
 
@@ -118,6 +116,13 @@ public class JFrameLearner extends javax.swing.JFrame {
 
         jTextPane1.setEditable(false);
         jScrollPane2.setViewportView(jTextPane1);
+
+        jButton2.setText("Train File");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("File");
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
@@ -159,10 +164,12 @@ public class JFrameLearner extends javax.swing.JFrame {
                         .addComponent(jScrollPane2))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE))
                 .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(155, 155, 155)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(70, 70, 70)
+                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(60, 60, 60))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -174,7 +181,9 @@ public class JFrameLearner extends javax.swing.JFrame {
                     .addComponent(jButton3)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2))
                 .addContainerGap())
         );
 
@@ -184,7 +193,7 @@ public class JFrameLearner extends javax.swing.JFrame {
 
     // Originated from NetBeans documentation.
     private void OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here//
         int returnVal = fileChooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
@@ -213,23 +222,27 @@ public class JFrameLearner extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
+        try{
         if(!fileLocation.equals("")) {
-            classifiable = JOptionPane.showInputDialog("What class do you want to classify?", "");
+            classifiable = fileUsed.getParentFile().getName();
             learner.learn(classifier, this);
         }
         else{
         JOptionPane.showMessageDialog(null, "You should first select a file");}
+        }catch(IOException e) {
+            
+        }
     }
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
                int returnVal = fileChooser.showOpenDialog(this);
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
+                fileUsed = fileChooser.getSelectedFile();
             //try {
           // What to do with the file, e.g. display it in a TextArea
-            fileLocation = file.getAbsolutePath();
+            fileLocation = fileUsed.getAbsolutePath();
             System.out.println(fileLocation);
             // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
             textarea.setEditable(false);
@@ -242,6 +255,10 @@ public class JFrameLearner extends javax.swing.JFrame {
         System.out.println("File access cancelled by user.");
     }              
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        classifiable = JOptionPane.showInputDialog("What class do you want to classify?", "");
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     public void predictionDialog(String prediction) throws IOException {
         String pString = JOptionPane.showInputDialog(prediction);
@@ -301,6 +318,7 @@ public class JFrameLearner extends javax.swing.JFrame {
     private javax.swing.JMenuItem Open;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
