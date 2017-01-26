@@ -29,6 +29,7 @@ public class JFrameLearner extends javax.swing.JFrame {
     public String classifiable = "";
     public Boolean predictionBoolean;
     public File fileUsed;
+    private JFileChooser chooser;
     
     public Boolean getPredictionBoolean() {
        return predictionBoolean;
@@ -194,18 +195,22 @@ public class JFrameLearner extends javax.swing.JFrame {
     // Originated from NetBeans documentation.
     private void OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenActionPerformed
         // TODO add your handling code here//
-        int returnVal = fileChooser.showOpenDialog(this);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
+        chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setDialogTitle("Select your file");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+//                File file = fileChooser.getSelectedFile();
             //try {
           // What to do with the file, e.g. display it in a TextArea
-            fileLocation = file.getAbsolutePath();
+            File d = chooser.getCurrentDirectory();
             // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
             textarea.setEditable(false);
             //textarea.read( new FileReader( file.getAbsolutePath() ), null );
-            textarea.append("You succesfully added a file to the learner");
+            textarea.append("You succesfully added a directory to the learner");
             // catch (IOException ex) {
-            System.out.println("problem accessing file"+file.getAbsolutePath());
+            System.out.println("problem accessing file"+d.getAbsolutePath());
             //}
     } else {
         System.out.println("File access cancelled by user.");
@@ -222,7 +227,7 @@ public class JFrameLearner extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         try{
         if(!fileLocation.equals("")) {
             classifiable = fileUsed.getParentFile().getName();
