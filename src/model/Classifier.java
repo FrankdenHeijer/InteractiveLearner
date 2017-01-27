@@ -1,6 +1,5 @@
 package model;
 
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import controller.Protocol;
 
 import java.io.BufferedReader;
@@ -8,6 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import static java.lang.Math.*;
+import javafx.util.Pair;
 
 /*
  * MOD 6 - Intelligent Interaction Design
@@ -221,45 +221,40 @@ public class Classifier implements Protocol {
      */
     public Double calcChiSquare(String word) {
         double chiSquare = 0;
-        Set<String> classSet = vocabulary.keySet();
-        for (String className : classSet) {
-            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
+        for (String category : vocabulary.keySet()) {
+            numberOfWordsPerClass.put(category, getNumberOfWordsPerClass(category));
         }
-        List<List<Double>> wordCounts = new LinkedList<>();
+        List<Pair<Double, Double>> wordCounts = new LinkedList<>();
         List<Double> classCounts = new LinkedList<>();
         double w1 = 0;
         double w2 = 0;
         double N = 0;
-        for (String className : classSet) {
+        for (String category : vocabulary.keySet()) {
             double w = 0;
-            if (vocabulary.get(className).get(word) != null) {
-                w = vocabulary.get(className).get(word);
+            if (vocabulary.get(category).get(word) != null) {
+                w = vocabulary.get(category).get(word);
             } else {
                 w = 0;
             }
-            w1 += w;
-            double c = numberOfWordsPerClass.get(className);
+            w1 = w1 + w;
+            double c = numberOfWordsPerClass.get(category);
             classCounts.add(c);
-            N += c;
+            N = N + c;
             double notW = c-w;
-            w2 += notW;
-            LinkedList<Double> tuple = new LinkedList<>();
-            tuple.add(w);
-            tuple.add(notW);
-            wordCounts.add(tuple);
+            w2 = w2 + notW;
+            Pair wordPair = new Pair(w, notW);
+            wordCounts.add(wordPair);
         }
         // Calculate the expected values
-        List<List<Double>> eValues = new LinkedList<List<Double>>();
+        List<Pair<Double, Double>> eValues = new LinkedList<>();
         for (double j : classCounts) {
-            LinkedList<Double> tuple = new LinkedList<Double>();
-            tuple.add((w1*j)/N);
-            tuple.add((w2*j)/N);
-            eValues.add(tuple);
+            Pair wordPair = new Pair((w1*j)/N, (w2*j)/N);
+            eValues.add(wordPair);
         }
         // Calculate the Chi-Square values
         for (int i = 0 ; i < eValues.size(); i++) {
-            chiSquare += pow(wordCounts.get(i).get(0)-eValues.get(i).get(0), 2)/eValues.get(i).get(0);
-            chiSquare += pow(wordCounts.get(i).get(1)-eValues.get(i).get(1), 2)/eValues.get(i).get(1);
+            chiSquare += Math.pow(wordCounts.get(i).getKey()-eValues.get(i).getKey(), 2)/eValues.get(i).getKey();
+            chiSquare += Math.pow(wordCounts.get(i).getKey()-eValues.get(i).getKey(), 2)/eValues.get(i).getValue();
         }
         return chiSquare;
     }
@@ -313,7 +308,7 @@ public class Classifier implements Protocol {
             predictedClass.put(className, probability);
         }
 
-        // select class with hightes probability
+        // select class with hightest probability
         double max = 0.0;
         String highestProb = (String)predictedClass.keySet().toArray()[0];
         max = predictedClass.get(highestProb);

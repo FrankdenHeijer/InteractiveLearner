@@ -37,6 +37,7 @@ public class Learner implements Protocol {
      */
     public static void learn(Classifier cl, JFrameLearner jf) throws IOException {
 		String prediction = cl.predictClass(jf.getContent());
+                System.out.println(cl.predictClass(jf.getContent()));
                 jf.predictionDialog(prediction);
     }
     
