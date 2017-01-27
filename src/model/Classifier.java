@@ -288,7 +288,6 @@ public class Classifier implements Protocol {
             for(String feature : featureVector) {
                 if (chiMap.containsKey(feature)) {
                     probabilityClass += Math.log10(getProbability(className, feature))/Math.log10(2);
-                    System.out.println("adding features");
                 }
 
 
