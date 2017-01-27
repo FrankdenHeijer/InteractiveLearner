@@ -24,10 +24,10 @@ public class Classifier implements Protocol {
     private double totalNumberOfDocs;
     private HashMap<String,Double> numberOfDocsPerClass;
     private Map<String, Double> chiMap = new HashMap<>();
-//    private double distinctWords;
     private HashMap<String,Integer> numberOfWordsPerClass;
     private final double criticalValue = 10.83;
     private int featureSize;
+    private int numberOfDistinctWords;
 
     /**
      *  Classifier constructor
@@ -55,14 +55,15 @@ public class Classifier implements Protocol {
         }
         selectFeatures();
 
-
 //        getNumberOfWordsPerClass();
         double counter = 0;
         for(String c: numberOfDocsPerClass.keySet()){
             counter += numberOfDocsPerClass.get(c);
         }
+        this.numberOfDistinctWords = getDistinctWords().size();
         totalNumberOfDocs = counter;
         chiMap = sortChiMap(calcChiSquare());
+        removeLowChiSquares();
     }
 
     /**
@@ -167,9 +168,8 @@ public class Classifier implements Protocol {
      *            probability
      * @return
      */
-    public double getProbability(String className, String feature){
-        double count = getNumberOfWordsPerClass(className);
-        double denominator = (count + (SMOOTHING_K * getDistinctWords().size()));
+    public double getProbability(String className, String feature, double count) {
+        double denominator = (count + (SMOOTHING_K * this.numberOfDistinctWords));
         double probability = 0.0;
         if (vocabulary.get(className).get(feature) != null) {
             double counter = new Integer(vocabulary.get(className).get(feature)).doubleValue() + SMOOTHING_K;
@@ -248,15 +248,15 @@ public class Classifier implements Protocol {
      * Removes the words from the vocabulary that have a value lower than the critical value set.
      * Because if they have a Chi square value lower than the critical value, they are not unique enough for a given class
      */
-    public void removeOnChiSquare() {
-        Map<String, Double> chiMapping = calcChiSquare();
+    public void removeLowChiSquares() {
+        Map<String, Double> chiMapping = chiMap;
         for (String className : vocabulary.keySet()) {
             int i = 0;
             Set<String> wordSet = vocabulary.get(className).keySet();
             Iterator<String> iterator = wordSet.iterator();
             while(iterator.hasNext()) {
                 String word = iterator.next();
-                if (chiMapping.get(word) < criticalValue) {
+                if (chiMapping.get(word) != null && chiMapping.get(word) < criticalValue) {
                     iterator.remove();
                     i++;
                 }
@@ -285,13 +285,11 @@ public class Classifier implements Protocol {
         for(classes c : classes.values()) {
             String className = c.name();
             double probabilityClass = 0.0;
+            double count = getNumberOfWordsPerClass(className);
             for(String feature : featureVector) {
                 if (chiMap.containsKey(feature)) {
-                    probabilityClass += Math.log10(getProbability(className, feature))/Math.log10(2);
+                    probabilityClass += Math.log(getProbability(className, feature, count))/Math.log(2);
                 }
-
-
-
             }
             double probabilityOfClass = ((numberOfDocsPerClass.get(className)) / (totalNumberOfDocs));
             double probability = probabilityClass + ((Math.log10(probabilityOfClass)) / (Math.log10(2)));
