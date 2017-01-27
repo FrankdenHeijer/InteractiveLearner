@@ -15,6 +15,7 @@ public interface Protocol {
 
     int SMOOTHING_K = 1;
     int FEATURE_THRESHOLD = 5;
+    int MAX_LIMIT = 1000;
     
     public final static String[] stopwords = {
                 "a"  ,

@@ -21,53 +21,46 @@ public class Classifier implements Protocol {
      *  Instance variables
      */
     private HashMap<String, HashMap<String, Integer>> vocabulary;
-    private double totalNumberOfDocs;
     private HashMap<String,Double> numberOfDocsPerClass;
-    private Map<String, Double> chiMap = new HashMap<>();
+    private Map<String, Double> chiSquareMap = new HashMap<>();
     private HashMap<String,Integer> numberOfWordsPerClass;
-    private final double criticalValue = 10.83;
+    private final double criticalValue = 10.83;  //Minimum value for chi squared
     private int featureSize;
     private int numberOfDistinctWords;
 
     /**
-     *  Classifier constructor
+     *  Instructor for Classifier
      */
     public Classifier(int featureSize) {
         this.featureSize = featureSize;
         vocabulary = new HashMap<String, HashMap<String, Integer>>();
         numberOfDocsPerClass = new HashMap<String, Double>();
         numberOfWordsPerClass = new HashMap<String, Integer>();
-
     }
 
     /**
-     * Train the model (vocabulary) with the given training set
+     * Train the classifier
      *
      * @throws IOException
      */
     public void train() throws IOException {
         for (classes c : classes.values()) {
-            String className = c.name();
-            vocabulary.put(className, new HashMap<String, Integer>());
-            String location = FILE_LOCATION + className;
+            vocabulary.put(c.name(), new HashMap<String, Integer>());
+            String location = FILE_LOCATION + c.name();
             File folder = new File(location);
-            openFolder(folder, className);
+            openFolder(folder, c.name());
         }
-        selectFeatures();
-
-//        getNumberOfWordsPerClass();
-        double counter = 0;
-        for(String c: numberOfDocsPerClass.keySet()){
-            counter += numberOfDocsPerClass.get(c);
-        }
+        applyThreshold();
         this.numberOfDistinctWords = getDistinctWords().size();
-        totalNumberOfDocs = counter;
-        chiMap = sortChiMap(calcChiSquare());
+        chiSquareMap = sortChiMap(calcChiSquare());
         removeLowChiSquares();
     }
 
     /**
      * Sorts all chi square values in descending order
+     * and returns the ordered map
+     *
+     * @param chiMap
      */
     public Map<String, Double> sortChiMap(Map<String, Double> chiMap) {
         Object[] a = chiMap.entrySet().toArray();
@@ -85,32 +78,43 @@ public class Classifier implements Protocol {
                 i--;
             }
         }
-        System.out.println("\nChi Square values sorted\n");
+        System.out.println("Chi Square values sorted\n");
         return returnMap;
     }
 
 
     /**
-     * Counts the total amount of words for each class
+     * Returns total number of documents
+     */
+    public double totalNumberOfDocs() {
+        double counter = 0.0;
+        for(String c: numberOfDocsPerClass.keySet()){
+            counter += numberOfDocsPerClass.get(c);
+        }
+        return counter;
+    }
+
+    /**
+     * Counts the total number of words for each class
      */
     public int getNumberOfWordsPerClass(String className){
         int words = 0;
         Map<String, Integer> wordsPerClas = vocabulary.get(className);
-        for (Integer value : wordsPerClas.values()) {
-            words += value;
+        for (Integer count : wordsPerClas.values()) {
+            words += count;
         }
         return words;
     }
 
     /**
-     * Returns the all unique words of the classes combined
+     * Returns all unique words of all the classes
      */
     public List<String> getDistinctWords() {
         ArrayList<String> distinctWords = new ArrayList<String>();
         for (classes c : classes.values()) {
 //            String classname = c.name();
-            HashMap<String, Integer> subSet = vocabulary.get(c.name());
-            for (String word : subSet.keySet()) {
+            HashMap<String, Integer> classMap = vocabulary.get(c.name());
+            for (String word : classMap.keySet()) {
                 if (!distinctWords.contains(word)) {
                     distinctWords.add(word);
                 }
@@ -119,6 +123,11 @@ public class Classifier implements Protocol {
         return distinctWords;
     }
 
+    /**
+     * Removes all duplicate values from a String[]
+     *
+     * @param tokenized
+     */
     public String[] getDistinctWords(String[] tokenized) {
         List<String> distinctWords = new LinkedList<String>();
         for (String word : tokenized) {
@@ -130,12 +139,12 @@ public class Classifier implements Protocol {
     }
 
     /**
-     * Fills the vocabulary model with the training data
+     * Adds all files from a folder to the vocabulary
      *
      * @param folder
-     *            - The folder where you can find the training data
+     *
      * @param className
-     *            - The name of the class
+     *
      * @throws IOException
      */
     public void openFolder(File folder, String className) throws IOException {
@@ -164,17 +173,17 @@ public class Classifier implements Protocol {
                 }
             }
         }
-        System.out.println("DOCS_TRAINED_PER_CLASS " + className +": " + numberOfFiles);
+        System.out.println("Trained documents for " + className +": " + numberOfFiles);
         numberOfDocsPerClass.put(className, numberOfFiles);
     }
 
     /**
-     * This method calculates the probability of each word in a class
+     * Calculates the probability for each word in a class
+     *
      * @param className
-     *            - The name of the class
+     *
      * @param feature
-     *            - A word in a class where you have to calculate the
-     *            probability
+     *
      * @return
      */
     public double getProbability(String className, String feature, double count) {
@@ -192,6 +201,7 @@ public class Classifier implements Protocol {
 
     /**
      * Calculates the Chi square value of all the words in the vocabulary
+     *
      * @return A Map of all the words with their respective chi square value.
      */
     public Map<String, Double> calcChiSquare() {
@@ -209,6 +219,9 @@ public class Classifier implements Protocol {
         return chiSquareMapping;
     }
 
+    /**
+     * Calculate the Chi square value of a single word
+     */
     public Double calcChiSquare(String word) {
         double chiSquare = 0;
         Set<String> classSet = vocabulary.keySet();
@@ -256,10 +269,10 @@ public class Classifier implements Protocol {
 
     /**
      * Removes the words from the vocabulary that have a value lower than the critical value set.
-     * Because if they have a Chi square value lower than the critical value, they are not unique enough for a given class
+     * The critical value determines if a word is unique enough to be used in the vocabulary
      */
     public void removeLowChiSquares() {
-        Map<String, Double> chiMapping = chiMap;
+        Map<String, Double> chiMapping = chiSquareMap;
         for (String className : vocabulary.keySet()) {
             int i = 0;
             Set<String> wordSet = vocabulary.get(className).keySet();
@@ -271,28 +284,28 @@ public class Classifier implements Protocol {
                     i++;
                 }
             }
-            System.out.println("\nChi Square below critical value removed from vocaulary\n");
-            System.out.println("\nThe word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
-            System.out.println("\nAnd has " + vocabulary.get(className).keySet().size() + " different words");
+            System.out.println("Chi Square valuesbelow critical value removed from vocaulary\n");
+            System.out.println("The word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
+            System.out.println("And has " + vocabulary.get(className).keySet().size() + " different words\n");
         }
 
     }
 
     /**
      * This method classifies the given document in a class
+     *
      * @param document - the document that has to be classified
-     * @return - The classification of the document
      */
     public String predict(String document){
         HashMap<String,Double> results = new HashMap<>();
         String[] featureVector = prepare(document);
-
+        double totalNumberOfDocs = totalNumberOfDocs();
         for(classes c : classes.values()) {
             String className = c.name();
             double probabilityClass = 0.0;
             double count = getNumberOfWordsPerClass(className);
             for(String feature : featureVector) {
-                if (chiMap.containsKey(feature)) {
+                if (chiSquareMap.containsKey(feature)) {
                     probabilityClass += Math.log(getProbability(className, feature, count))/Math.log(2);
                 }
             }
@@ -315,25 +328,25 @@ public class Classifier implements Protocol {
     }
 
     /**
-     * Checks if occurrence of a word is higher than the threshold.
-     * When this is not the case, the word will not be included
+     * Only allow words above the threshold
      */
-    public void selectFeatures() {
+    public void applyThreshold() {
         for (classes c : classes.values()) {
-            String className = c.name();
-            HashMap<String, Integer> subSet = vocabulary.get(className);
-            HashMap<String, Integer> newSubSet = new HashMap<String, Integer>();
-            for (String s : subSet.keySet()){
-                int occurrence = subSet.get(s);
-                if (occurrence > FEATURE_THRESHOLD) {
-                    newSubSet.put(s, occurrence);
+            HashMap<String, Integer> classMap = vocabulary.get(c.name());
+            HashMap<String, Integer> subSet = new HashMap<String, Integer>();
+            for (String s : classMap.keySet()){
+                int count = classMap.get(s);
+                if (count > FEATURE_THRESHOLD && count < MAX_LIMIT) {
+                    subSet.put(s, count);
                 }
             }
-            vocabulary.put(className, newSubSet);
+            vocabulary.put(c.name(), subSet);
         }
     }
 
     /**
+     * Prepare a documents to be classified.
+     *
      *
      * @param document - A document that has to be set in to a vector.
      * @return - The tokenized and normalized string array
@@ -367,7 +380,12 @@ public class Classifier implements Protocol {
     public String[] tokenize(String document) {
         return document.split(" ");
     }
-    
+
+    /**
+     * Removes often occurring words as determined in Protocol
+     *
+     * @param tokens
+     */
     public String[] removeStopwords(String[] tokens) {
         int count = 0;
         List<String> strings = new LinkedList<String>(Arrays.asList(tokens));
