@@ -110,7 +110,7 @@ public class Learner implements Protocol {
 ////        }
 //    }
     public static void learn(Classifier c, JFrameLearner jf) throws IOException {
-		String predict = c.predict(jf.getClassifiable());
+		String predict = c.predict(jf.getContent());
                 jf.predictionDialog(predict);
     }
     
@@ -119,11 +119,11 @@ public class Learner implements Protocol {
                 success += 1;
                 jf.appendToTextarea("We will add this to our vocabulary\n");
                 String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-                String classification = c.predict(jf.getClassifiable());
+                String classification = c.predict(jf.getContent());
                 File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
 
                 FileWriter fw = new FileWriter(newTextFile);
-                fw.write(jf.getClassifiable());
+                fw.write(jf.getContent());
                 fw.close();
                 jf.appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons\n");
                 }
@@ -138,7 +138,7 @@ public class Learner implements Protocol {
                 String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
                 File newTextFile = new File(FILE_LOCATION + in + "/" + timeLog + ".txt");
                 FileWriter fw = new FileWriter(newTextFile);
-                fw.write(jf.getClassifiable());
+                fw.write(jf.getContent());
                 fw.close();
                 jf.appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons\n");
                 }

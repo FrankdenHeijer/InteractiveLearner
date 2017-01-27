@@ -39,6 +39,7 @@ public class JFrameLearner extends javax.swing.JFrame {
     public Boolean predictionBoolean;
     public File fileUsed;
     private JFileChooser chooser;
+    public String content;
     
     public Boolean getPredictionBoolean() {
        return predictionBoolean;
@@ -232,8 +233,8 @@ public class JFrameLearner extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
         clearTextarea();
-        classifiable = JOptionPane.showInputDialog("What do you want to classify?");
-        if(classifiable != ""){
+        content = JOptionPane.showInputDialog("What do you want to classify?");
+        if(content != ""){
             try {
                 learner.learn(classifier, this);
                 classifier.train();
@@ -316,6 +317,10 @@ public class JFrameLearner extends javax.swing.JFrame {
            appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons ");
        }
        
+    }
+
+    public String getContent() {
+        return content;
     }
     
     public void appendToTextarea(String string){

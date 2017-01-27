@@ -40,7 +40,7 @@ public class Tester implements Protocol {
      * Measure method which will measure the accurateness of the classifier.
      * @param c
      *          - Classifier instance.
-     * @param place
+     * @param ClassName
      *          - Shows path to the file location.
      * @name
      *          - Name of the tested class.
@@ -48,13 +48,14 @@ public class Tester implements Protocol {
     public static void measure(Classifier c, String directoryLocation, String ClassName, JFrameLearner jf) throws FileNotFoundException, IOException {
         File location = new File(directoryLocation);
         System.out.println(location.listFiles().length);
-        for(int i = 0; i < location.listFiles().length;) {
+        for(int i = 1; i < location.listFiles().length;) {
            File[] files = location.listFiles();
            BufferedReader r = new BufferedReader(new FileReader(files[i].getAbsolutePath()));
            String content = "";
            while(r.readLine() != null) {
                content += r.readLine();
            }
+           System.out.println(content);
            r.close();
            String predict = c.predict(content);
            System.out.println(ClassName);
