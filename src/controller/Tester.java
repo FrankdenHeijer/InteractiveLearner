@@ -3,6 +3,7 @@ package controller;
 import java.io.*;
 import java.util.Scanner;
 import model.Classifier;
+import view.JFrameLearner;
 
 /*
  * MOD 6 - Intelligent Interaction Design
@@ -26,14 +27,14 @@ public class Tester implements Protocol {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        Classifier cl = new Classifier(20);
-        cl.train();
-        for(classes c : classes.values()){
-            String className = c.name();
-            measure(cl, TEST_LOCATION, className);
-        }
-    }
+//    public static void main(String[] args) throws IOException {
+//        Classifier cl = new Classifier(20);
+//        cl.train();
+//        for(classes c : classes.values()){
+//            String className = c.name();
+//            measure(cl, TEST_LOCATION, className);
+//        }
+//    }
     
     /**
      * Measure method which will measure the accurateness of the classifier.
@@ -44,10 +45,10 @@ public class Tester implements Protocol {
      * @name
      *          - Name of the tested class.
      */
-    public static void measure(Classifier c, String directoryLocation, String ClassName) throws FileNotFoundException, IOException {
+    public static void measure(Classifier c, String directoryLocation, String ClassName, JFrameLearner jf) throws FileNotFoundException, IOException {
         File location = new File(directoryLocation);
         System.out.println(location.listFiles().length);
-        for(int i = 0; i < location.listFiles().length; i++) {
+        for(int i = 0; i < location.listFiles().length;) {
            File[] files = location.listFiles();
            BufferedReader r = new BufferedReader(new FileReader(files[i].getAbsolutePath()));
            String content = "";
@@ -63,8 +64,11 @@ public class Tester implements Protocol {
                failures ++;
            }
            System.out.println(successes + " " + failures);
+           i++;
            }
         System.out.println("s: " + successes + " f: " + failures );
+        jf.clearTextarea();
+        jf.appendToTextarea("Successes: " + successes + "/n" + "Failures: " + failures + "/n" + "Accuracy: " + (successes+failures)/successes);
         }
     }
 

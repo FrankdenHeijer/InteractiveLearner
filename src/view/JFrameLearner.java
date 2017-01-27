@@ -19,6 +19,10 @@ import controller.Tester;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import controller.Protocol;
+import controller.Protocol.classes;
 
 
 /**
@@ -199,7 +203,6 @@ public class JFrameLearner extends javax.swing.JFrame {
 
     // Originated from NetBeans documentation.
     private void OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenActionPerformed
-        // TODO add your handling code here//
         //http://www.rgagnon.com/javadetails/java-0370.html
         chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
@@ -207,19 +210,11 @@ public class JFrameLearner extends javax.swing.JFrame {
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-//                File file = fileChooser.getSelectedFile();
-            //try {
-          // What to do with the file, e.g. display it in a TextArea
             File d = chooser.getCurrentDirectory();
             jTextPane1.setText(d.getAbsolutePath());
             jTextPane1.setVisible(true);
-            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
             textarea.setEditable(false);
-            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
             textarea.append("You succesfully added a directory to the learner");
-            // catch (IOException ex) {
-           
-            //}
     } else {
         System.out.println("File access cancelled by user.");
     }
@@ -235,38 +230,23 @@ public class JFrameLearner extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        classifiable = JOptionPane.showInputDialog("What class do you want to classify?");
-        try{
-        if(!fileLocation.equals("")) {
-            learner.learn(classifier, this);
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
+        clearTextarea();
+        classifiable = JOptionPane.showInputDialog("What do you want to classify?");
+        if(classifiable != ""){
+            try {
+                learner.learn(classifier, this);
+                classifier.train();
+            } catch (IOException ex) {
+                Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         else{
-        JOptionPane.showMessageDialog(null, "You should first select a file");}
-        }catch(IOException e) {
-            
-        }
-    }
+            JOptionPane.showMessageDialog(null, "Oops, something went wrong. Please try again");
+        }}
+    
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-//        // TODO add your handling code here:
-//               int returnVal = fileChooser.showOpenDialog(this);
-//            if (returnVal == JFileChooser.APPROVE_OPTION) {
-//                fileUsed = fileChooser.getSelectedFile();
-//            //try {
-//          // What to do with the file, e.g. display it in a TextArea
-//            fileLocation = fileUsed.getAbsolutePath();
-//            System.out.println(fileLocation);
-//            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
-//            textarea.setEditable(false);
-//            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
-//            //textarea.append("You succesfully added a file to the learner " + fileLocation);
-//            // catch (IOException ex) {
-//            jTextPane1.setText(fileLocation);
-//            //}
-//    } else {
-//        System.out.println("File access cancelled by user.");
-//    }
  //http://www.rgagnon.com/javadetails/java-0370.html
         chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
@@ -274,19 +254,11 @@ public class JFrameLearner extends javax.swing.JFrame {
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
             if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-//                File file = fileChooser.getSelectedFile();
-            //try {
-          // What to do with the file, e.g. display it in a TextArea
             File d = chooser.getSelectedFile();
             fileLocation = d.getAbsolutePath();
             jTextPane1.setText(d.getAbsolutePath());
-            // We can use FileLocation to execute our methods regarding reading files etc. (instead of protocol)
             textarea.setEditable(false);
-            //textarea.read( new FileReader( file.getAbsolutePath() ), null );
             textarea.append("You succesfully added a directory to the learner");
-            // catch (IOException ex) {
-            System.out.println("problem accessing file"+d.getAbsolutePath());
-            //}
     } else {
         System.out.println("File access cancelled by user.");
     }
@@ -298,7 +270,7 @@ public class JFrameLearner extends javax.swing.JFrame {
             classifiable = p.getFileName().toString();
             System.out.println(classifiable);
             try {
-                tester.measure(classifier, fileLocation, classifiable);
+                tester.measure(classifier, fileLocation, classifiable, this);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -312,19 +284,46 @@ public class JFrameLearner extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     public void predictionDialog(String prediction) throws IOException {
-        String pString = JOptionPane.showInputDialog(prediction);
+        String pString = JOptionPane.showInputDialog("This is the class we predicted for your input: " + prediction + ". Do you agree?");
         System.out.println(pString);
         if(pString.equals("y")) {
             predictionBoolean = true;
-            learner.continueLearning(classifier, this);
+            learner.continueLearning(classifier, this, predictionBoolean);
         }
         else{
             predictionBoolean = false;
+            learner.continueLearning(classifier, this, predictionBoolean);
         }
+    }
+    
+    public void falsePredictionDialog() {
+       String corrected = JOptionPane.showInputDialog("What should be the right class?");
+       corrected = corrected.toUpperCase();
+       List<String> rightClasses = new ArrayList<String>();
+       for(classes c : classes.values()){
+           String name = c.name();
+           rightClasses.add(name);
+       }
+       if(rightClasses.contains(corrected)) {
+           try {
+               learner.correctedLearning(this, corrected);
+           } catch (IOException ex) {
+               Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
+           }
+       }
+       else{
+           JOptionPane.showMessageDialog(null, "Oops, the class you provided wasn't right");
+           appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons ");
+       }
+       
     }
     
     public void appendToTextarea(String string){
         textarea.append(string);
+    }
+    
+    public void clearTextarea() {
+        textarea.setText("");
     }
     /**
      * @param args the command line arguments

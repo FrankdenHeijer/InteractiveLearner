@@ -61,58 +61,63 @@ public class Learner implements Protocol {
      * @throws IOException
      */
 
-    public void learn(Classifier c, JFrameLearner jf) throws IOException {
-        String input = "";
-//        Scanner scanner = new Scanner(System.in);
-        //System.out.println("\nWelcome to the Interactive Learner!");
-        //System.out.println("What do you want to classify?");
-        //input = scanner.nextLine();
-        String predict = c.predict(jf.getClassifiable());
-        jf.getTextarea().setText("\nPrediction: " + predict + "\n");
-        if (input.equals("")) {
-            total += 1;
-            predict = c.predict(jf.getClassifiable());
-            String prediction = ("\nWe predict: " + predict + "\n Do you agree? (y/n)");
-            jf.predictionDialog(prediction);
-//            if (jf.getPredictionBoolean()) {
-//                success += 1;
-//                
-//                System.out.println("We will add this to our vocabulary");
-//                String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-//                String classification = c.predict(jf.getClassifiable());
-//                File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
-//
-//                FileWriter fw = new FileWriter(newTextFile);
-//                fw.write(jf.getClassifiable());
-//                fw.close();
-//            } else {
-//                System.out.println("Which of the following classes do you think is right?");
-//                ArrayList<String> list = new ArrayList<String>();
-//
-//                for (classes cl : classes.values()) {
-//                    String className = cl.name();
-//                    if (className != c.predict(jf.getClassifiable())) {
-//                        System.out.println("- " + className);
-//                        list.add(className);
-//                    }
-//                }
-  //              correct(list, input);
-    //        }
-        }
-//        else {
-//            System.out.println("This is not valid, please try again");
+//    public void learn(Classifier c, JFrameLearner jf) throws IOException {
+//        String input = "";
+////        Scanner scanner = new Scanner(System.in);
+//        //System.out.println("\nWelcome to the Interactive Learner!");
+//        //System.out.println("What do you want to classify?");
+//        //input = scanner.nextLine();
+//        String predict = c.predict(jf.getClassifiable());
+//        jf.getTextarea().setText("\nPrediction: " + predict + "\n");
+//        if (input.equals("")) {
+//            total += 1;
+//            predict = c.predict(jf.getClassifiable());
+//            String prediction = ("\nWe predict: " + predict + "\n Do you agree? (y/n)");
+//            jf.predictionDialog(prediction);
+////            if (jf.getPredictionBoolean()) {
+////                success += 1;
+////                
+////                System.out.println("We will add this to our vocabulary");
+////                String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+////                String classification = c.predict(jf.getClassifiable());
+////                File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
+////
+////                FileWriter fw = new FileWriter(newTextFile);
+////                fw.write(jf.getClassifiable());
+////                fw.close();
+////            } else {
+////                System.out.println("Which of the following classes do you think is right?");
+////                ArrayList<String> list = new ArrayList<String>();
+////
+////                for (classes cl : classes.values()) {
+////                    String className = cl.name();
+////                    if (className != c.predict(jf.getClassifiable())) {
+////                        System.out.println("- " + className);
+////                        list.add(className);
+////                    }
+////                }
+//  //              correct(list, input);
+//    //        }
 //        }
-//        double acc = success / total * 100;
-//        System.out.println("Accuracy = " + acc + "%");
-//        System.out.println("Do you want to repeat? (y/n)");
-//        if (!read()) {
-//            goOn = false;
-//        }
+////        else {
+////            System.out.println("This is not valid, please try again");
+////        }
+////        double acc = success / total * 100;
+////        System.out.println("Accuracy = " + acc + "%");
+////        System.out.println("Do you want to repeat? (y/n)");
+////        if (!read()) {
+////            goOn = false;
+////        }
+//    }
+    public static void learn(Classifier c, JFrameLearner jf) throws IOException {
+		String predict = c.predict(jf.getClassifiable());
+                jf.predictionDialog(predict);
     }
     
-    public void continueLearning(Classifier c, JFrameLearner jf) throws IOException {
+    public void continueLearning(Classifier c, JFrameLearner jf, Boolean predictionBoolean) throws IOException {
+            if(predictionBoolean) {
                 success += 1;
-                jf.appendToTextarea("We will add this to our vocabulary");
+                jf.appendToTextarea("We will add this to our vocabulary\n");
                 String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
                 String classification = c.predict(jf.getClassifiable());
                 File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
@@ -120,81 +125,21 @@ public class Learner implements Protocol {
                 FileWriter fw = new FileWriter(newTextFile);
                 fw.write(jf.getClassifiable());
                 fw.close();
-//            } else {
-//                System.out.println("Which of the following classes do you think is right?");
-//                ArrayList<String> list = new ArrayList<String>();
-//
-//                for (classes cl : classes.values()) {
-//                    String className = cl.name();
-//                    if (className != c.predict(jf.getClassifiable())) {
-//                        System.out.println("- " + className);
-//                        list.add(className);
-//                    }
-//                }
-//    }
-    }
-
-    /*
-     * Corrects the classname if the prediction was wrong
-     *
-     * @param list
-     * 		-	Array list of the possible classes
-     * @param in
-     * 		- 	The input text
-     * @throws IOException
-     */
-    public static void correct(ArrayList<String> list, String in) throws IOException {
-        String input = "";
-        Scanner scanner = new Scanner(System.in);
-
-        while (scanner.hasNext()) {
-            input = scanner.nextLine();
-
-            if (list.contains(input.toUpperCase())) {
-
-                String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-                String classification = input.toUpperCase();
-                File newTextFile = new File(FILE_LOCATION + classification + "/" + timeLog + ".txt");
-
-                FileWriter fw = new FileWriter(newTextFile);
-                fw.write(in);
-                fw.close();
-                break;
-
-            } else {
-                System.out.println("Please try again! Which of the following classes is right?");
-
-                for (String s : list) {
-                    System.out.println("- " + s);
+                jf.appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons\n");
                 }
+                 else {
+                jf.falsePredictionDialog();
             }
-
-        }
     }
-
-    /*
-     * Reads if the input is yes or no
-     */
-    public static boolean read() {
-        String input = "";
-        boolean b = false;
-        Scanner scanner = new Scanner(System.in);
-
-        while (scanner.hasNext()) {
-            input = scanner.nextLine();
-
-            if (input.toUpperCase().equals("Y")) {
-                b = true;
-                break;
-            } else if (input.toUpperCase().equals("N")) {
-                b = false;
-                break;
-            } else {
-                System.out.println("Please answer (y/n)");
-            }
-        }
-        return b;
-
-    }
-
+    
+    public void correctedLearning(JFrameLearner jf, String in) throws IOException {
+                success += 1;
+                jf.appendToTextarea("We will add this to our vocabulary");
+                String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+                File newTextFile = new File(FILE_LOCATION + in + "/" + timeLog + ".txt");
+                FileWriter fw = new FileWriter(newTextFile);
+                fw.write(jf.getClassifiable());
+                fw.close();
+                jf.appendToTextarea("You can add a new document to train or you can test the learner by pressing the corresponding buttons\n");
+                }
 }
