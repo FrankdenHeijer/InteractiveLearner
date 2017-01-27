@@ -333,9 +333,10 @@ public class Classifier implements Protocol {
      * @param document - A document that has to be set in to a vector.
      * @return - The tokenized and normalized string array
      */
-    public String[] prepare(String document) {
+   public String[] prepare(String document) {
         String normalized = normalize(document);
         String[] tokenized = tokenize(normalized);
+        tokenized = removeStopwords(tokenized);
         return tokenized;
     }
 
@@ -357,5 +358,23 @@ public class Classifier implements Protocol {
      */
     public String[] tokenize(String document) {
         return document.split(" ");
+    }
+    
+    public String[] removeStopwords(String[] tokens) {
+        int count = 0;
+        System.out.println("This is tokens length before stopwords :" + tokens.length);
+        List<String> strings = new LinkedList<String>(Arrays.asList(tokens));
+        for(int i = 0; i < strings.size() - count; i++) {
+            for(int j = 0; j < stopwords.length; j++) {
+                if((strings.get(i).equals(stopwords[j]))) {
+                    count++;
+                    strings.remove(i);
+                }
+            }
+                
+        }
+        tokens = strings.toArray(new String[strings.size()]);
+        System.out.println("This is tokens length after stopwords :" + tokens.length);
+        return tokens;
     }
 }
