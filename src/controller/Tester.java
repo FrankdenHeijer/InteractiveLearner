@@ -16,8 +16,8 @@ public class Tester implements Protocol {
     /**
     * Instance Variables
     */
-    static int successes = 0;
-    static int failures = 0;
+    static double successes = 0;
+    static double failures = 0;
 //    private double total;
 
 
@@ -57,6 +57,7 @@ public class Tester implements Protocol {
            }
            r.close();
            String predict = c.predict(content);
+           System.out.println(ClassName);
            if(predict.equals(ClassName)) {
                successes ++;
            }
@@ -68,7 +69,9 @@ public class Tester implements Protocol {
            }
         System.out.println("s: " + successes + " f: " + failures );
         jf.clearTextarea();
-        jf.appendToTextarea("Successes: " + successes + "/n" + "Failures: " + failures + "/n" + "Accuracy: " + (successes+failures)/successes);
+        jf.appendToTextarea("Successes: " + successes + "\nFailures: " + failures + "\nAccuracy: " + successes/(successes+failures));
+        successes = 0;
+        failures = 0;
         }
     }
 
