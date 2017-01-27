@@ -25,9 +25,12 @@ import controller.Protocol;
 import controller.Protocol.classes;
 
 
-/**
+/*
+ * MOD 6 - Intelligent Interaction Design
+ * AI Project: Interactive Learner
  *
- * @author LENOVOW540
+ * @author Merijn Kleinreesink & Frank den Heijer
+ * Created on: 20-12-2016
  */
 public class JFrameLearner extends javax.swing.JFrame {
 
@@ -53,28 +56,51 @@ public class JFrameLearner extends javax.swing.JFrame {
      * Creates new form JFrameLearner
      */
     public JFrameLearner() { initComponents(); }
-
+    
+    /**
+     * Simple getter on classifier
+     * @return  classifier
+     */
     public Classifier getClassifier() {
         return classifier;
     }
-
+    
+    /**
+     * Simple setter for classifier
+     * @param classifier 
+     */
     public void setClassifier(Classifier classifier) {
         this.classifier = classifier;
     }
 
+    /**
+     * Simple getter on learner
+     * @return learner
+     */
     public Learner getLearner() {
-
         return learner;
     }
 
+    /**
+     * Simple setter on learner
+     * @param learner 
+     */
     public void setLearner(Learner learner) {
         this.learner = learner;
     }
-
+    
+    /**
+     * Simple setter on textarea
+     * @param textarea 
+     */
     public void setTextarea(JTextArea textarea) {
         this.textarea = textarea;
     }
-
+    
+    /**
+     * Simple getter on textarea
+     * @return textarea
+     */
     public JTextArea getTextarea() {
         return textarea;
     }
@@ -203,8 +229,12 @@ public class JFrameLearner extends javax.swing.JFrame {
 
 
     // Originated from NetBeans documentation.
+    /**
+     * OpenActionPerformed method which opens a filechooser while clicking on file -> open file
+     * @param evt 
+     */
     private void OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenActionPerformed
-        //http://www.rgagnon.com/javadetails/java-0370.html
+        //Rule 238-243 : http://www.rgagnon.com/javadetails/java-0370.html
         chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Select your file");
@@ -221,9 +251,11 @@ public class JFrameLearner extends javax.swing.JFrame {
     }
  
     }//GEN-LAST:event_OpenActionPerformed
-
+    /**
+     * Simple exit action
+     * @param evt 
+     */
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
-        // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_ExitActionPerformed
 
@@ -231,10 +263,14 @@ public class JFrameLearner extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenu1ActionPerformed
 
+    /**
+     * The 'add to corpus' button. This method will start the learner and will provide the initial set-up for learning process of classifier
+     * @param evt 
+     */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
         clearTextarea();
         content = JOptionPane.showInputDialog("What do you want to classify?");
-        if(content != ""){
+        if(classifiable != ""){
             try {
                 learner.learn(classifier, this);
                 classifier.train();
@@ -246,9 +282,12 @@ public class JFrameLearner extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Oops, something went wrong. Please try again");
         }}
     
-
+/**
+ * Same method as openActionPerformed.
+ * @param evt 
+ */
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
- //http://www.rgagnon.com/javadetails/java-0370.html
+ //Rule 291-296 orginated from: http://www.rgagnon.com/javadetails/java-0370.html
         chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle("Select your file");
@@ -264,12 +303,16 @@ public class JFrameLearner extends javax.swing.JFrame {
         System.out.println("File access cancelled by user.");
     }
     }//GEN-LAST:event_jButton3ActionPerformed
-
+    
+    /**
+     * The method to test the classifier. While clicking it will interact with tester to show the accuracy of the learner.
+     * @param evt 
+     */
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         if(!fileLocation.equals("")) {
+            //Makes sure that the right path is given to classifiable
             Path p = Paths.get(fileLocation);
             classifiable = p.getFileName().toString();
-            System.out.println(classifiable);
             try {
                 tester.measure(classifier, fileLocation, classifiable, this);
             } catch (FileNotFoundException ex) {
@@ -283,20 +326,30 @@ public class JFrameLearner extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_jButton2ActionPerformed
-
+    
+    /**
+     * Dialog which originates from learner. Once the user has given a string to classify, this dialog will show the prediction and asks for input.
+     * @param prediction
+     * @throws IOException 
+     */
     public void predictionDialog(String prediction) throws IOException {
         String pString = JOptionPane.showInputDialog("This is the class we predicted for your input: " + prediction + ". Do you agree?");
         System.out.println(pString);
         if(pString.equals("y")) {
             predictionBoolean = true;
+            //Continuelearning will be instantized in learner. Enables us to first finish the GUI before carrying out methods.
             learner.continueLearning(classifier, this, predictionBoolean);
         }
         else{
             predictionBoolean = false;
+            //Continuelearning will be instantized in learner. Enables us to first finish the GUI before carrying out methods.
             learner.continueLearning(classifier, this, predictionBoolean);
         }
     }
     
+    /**
+     * Dialog which originates from learner. Once the user shows that a prediction is wrong, the method will arise.
+     */
     public void falsePredictionDialog() {
        String corrected = JOptionPane.showInputDialog("What should be the right class?");
        corrected = corrected.toUpperCase();
@@ -307,6 +360,7 @@ public class JFrameLearner extends javax.swing.JFrame {
        }
        if(rightClasses.contains(corrected)) {
            try {
+               //CorrectedLearning will be instantized in learner. Enables us to first finish the GUI before carrying out methods
                learner.correctedLearning(this, corrected);
            } catch (IOException ex) {
                Logger.getLogger(JFrameLearner.class.getName()).log(Level.SEVERE, null, ex);
@@ -318,17 +372,27 @@ public class JFrameLearner extends javax.swing.JFrame {
        }
        
     }
-
-    public String getContent() {
-        return content;
-    }
-    
+    /**
+     * Simple method for appending text to textarea
+     * @param string 
+     */
     public void appendToTextarea(String string){
         textarea.append(string);
     }
     
+    /**
+     * Simple method which empties the textarea
+     */
     public void clearTextarea() {
         textarea.setText("");
+    }
+    
+    /**
+     * Simple getter on content
+     * @return content
+     */
+    public String getContent() {
+        return content;
     }
     /**
      * @param args the command line arguments

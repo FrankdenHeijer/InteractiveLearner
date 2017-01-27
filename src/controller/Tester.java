@@ -9,7 +9,7 @@ import view.JFrameLearner;
  * MOD 6 - Intelligent Interaction Design
  * AI Project: Interactive Learner
  *
- * @author Merijn Kleinresingk & Frank den Heijer
+ * @author Merijn Kleinreesink & Frank den Heijer
  * Created on: 20-12-2016
  */
 public class Tester implements Protocol {
@@ -18,56 +18,36 @@ public class Tester implements Protocol {
     */
     static double successes = 0;
     static double failures = 0;
-//    private double total;
-
-
-    /**
-     *Main method for tester class. Actual testing will happen here
-     *
-     * @param args
-     * @throws IOException
-     */
-//    public static void main(String[] args) throws IOException {
-//        Classifier cl = new Classifier(20);
-//        cl.train();
-//        for(classes c : classes.values()){
-//            String className = c.name();
-//            measure(cl, TEST_LOCATION, className);
-//        }
-//    }
     
     /**
-     * Measure method which will measure the accurateness of the classifier.
+     * Measure function which will determine the accuracy of the trained classifier.
      * @param c
-     *          - Classifier instance.
-     * @param ClassName
-     *          - Shows path to the file location.
-     * @name
-     *          - Name of the tested class.
+     * @param directoryLocation
+     * @param Class
+     * @param jf
+     * @throws FileNotFoundException
+     * @throws IOException 
      */
-    public static void measure(Classifier c, String directoryLocation, String ClassName, JFrameLearner jf) throws FileNotFoundException, IOException {
-        File location = new File(directoryLocation);
-        System.out.println(location.listFiles().length);
-        for(int i = 1; i < location.listFiles().length;) {
-           File[] files = location.listFiles();
+    public static void measure(Classifier c, String directoryLocation, String Class, JFrameLearner jf) throws FileNotFoundException, IOException {
+        File loc = new File(directoryLocation);
+        for(int i = 1; i < loc.listFiles().length;) {
+           File[] files = loc.listFiles();
            BufferedReader r = new BufferedReader(new FileReader(files[i].getAbsolutePath()));
-           String content = "";
+           String text = "";
            while(r.readLine() != null) {
-               content += r.readLine();
+               text += r.readLine();
            }
            r.close();
-           String predict = c.predict(content);
-           System.out.println(ClassName);
-           if(predict.equals(ClassName)) {
-               successes ++;
+           String pString = c.predict(text);
+           System.out.println(Class);
+           if(pString.equals(Class)) {
+               successes = successes + 1;
            }
            else{
-               failures ++;
+               failures = failures + 1;
            }
-           System.out.println(successes + " " + failures);
            i++;
            }
-        System.out.println("s: " + successes + " f: " + failures );
         jf.clearTextarea();
         jf.appendToTextarea("Successes: " + successes + "\nFailures: " + failures + "\nAccuracy: " + successes/(successes+failures));
         successes = 0;
