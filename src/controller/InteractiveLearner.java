@@ -22,7 +22,7 @@ public class InteractiveLearner implements Protocol {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Classifier classifier = new Classifier(300);
+        Classifier classifier = new Classifier(Protocol.FEATURE_SIZE);
         JFrameLearner jf = new JFrameLearner();
         Learner learner = new Learner();
         jf.setLearner(learner);
