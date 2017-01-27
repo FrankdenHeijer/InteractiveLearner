@@ -27,7 +27,7 @@ public class Tester implements Protocol {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Classifier cl = new Classifier();
+        Classifier cl = new Classifier(20);
         cl.train();
         for(classes c : classes.values()){
             String className = c.name();

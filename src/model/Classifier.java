@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.*;
 import java.util.*;
 
+import static java.lang.Math.*;
+
 /*
  * MOD 6 - Intelligent Interaction Design
  * AI Project: Interactive Learner
@@ -21,17 +23,20 @@ public class Classifier implements Protocol {
     private HashMap<String, HashMap<String, Integer>> vocabulary;
     private double totalNumberOfDocs;
     private HashMap<String,Double> numberOfDocsPerClass;
+    private Map<String, Double> chiMap = new HashMap<>();
 //    private double distinctWords;
     private HashMap<String,Integer> numberOfWordsPerClass;
     private final double criticalValue = 10.83;
+    private int featureSize;
 
     /**
      *  Classifier constructor
      */
-    public Classifier() {
+    public Classifier(int featureSize) {
+        this.featureSize = featureSize;
         vocabulary = new HashMap<String, HashMap<String, Integer>>();
         numberOfDocsPerClass = new HashMap<String, Double>();
-//        numberOfWordsPerClass = new HashMap<String, Double>();
+        numberOfWordsPerClass = new HashMap<String, Integer>();
 
     }
 
@@ -49,13 +54,41 @@ public class Classifier implements Protocol {
             openFolder(folder, className);
         }
         selectFeatures();
+
+
 //        getNumberOfWordsPerClass();
         double counter = 0;
         for(String c: numberOfDocsPerClass.keySet()){
             counter += numberOfDocsPerClass.get(c);
         }
         totalNumberOfDocs = counter;
+        chiMap = sortChiMap(calcChiSquare());
     }
+
+    /**
+     * Sorts all chi square values in descending order
+     */
+    public Map<String, Double> sortChiMap(Map<String, Double> chiMap) {
+        Object[] a = chiMap.entrySet().toArray();
+        Arrays.sort(a, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((Map.Entry<String, Double>) o2).getValue()
+                        .compareTo(((Map.Entry<String, Double>) o1).getValue());
+            }
+        });
+        Map<String, Double> returnMap = new HashMap<String, Double>();
+        int i = featureSize;
+        for (Object e : a) {
+            if (i > 0) {
+                returnMap.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
+                System.out.println(((Map.Entry<String, Double>) e).getKey() + " : "
+                        + ((Map.Entry<String, Double>) e).getValue());
+                i--;
+            }
+        }
+        return returnMap;
+    }
+
 
     /**
      * Counts the total amount of words for each class
@@ -157,6 +190,7 @@ public class Classifier implements Protocol {
             numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
         }
         List<String> distinctWords = getDistinctWords();
+
         Map<String, Double> chiSquareMapping = new HashMap<>();
         for (String word : distinctWords) {
             double chiSquare = calcChiSquare(word);
@@ -204,8 +238,8 @@ public class Classifier implements Protocol {
         }
         // Calculate the Chi-Square values
         for (int i = 0 ; i < eValues.size(); i++) {
-//            chiSquare += pow(wordCounts.get(i).get(0)-eValues.get(i).get(0), 2)/eValues.get(i).get(0);
-//            chiSquare += pow(wordCounts.get(i).get(1)-eValues.get(i).get(1), 2)/eValues.get(i).get(1);
+            chiSquare += pow(wordCounts.get(i).get(0)-eValues.get(i).get(0), 2)/eValues.get(i).get(0);
+            chiSquare += pow(wordCounts.get(i).get(1)-eValues.get(i).get(1), 2)/eValues.get(i).get(1);
         }
         return chiSquare;
     }
@@ -239,19 +273,32 @@ public class Classifier implements Protocol {
      * @return - The classification of the document
      */
     public String predict(String document){
-        HashMap<String,Double> results = new HashMap<String,Double>();
+        HashMap<String,Double> results = new HashMap<>();
         String[] featureVector = prepare(document);
+
+//        Map<String, Double> chiSquareMapping = new HashMap<>();
+//        for (String word : featureVector) {
+//            double chiSquare = calcChiSquare(word);
+//            chiSquareMapping.put(word, chiSquare);
+//        }
+
         for(classes c : classes.values()) {
             String className = c.name();
             double probabilityClass = 0.0;
             for(String feature : featureVector) {
-                probabilityClass += Math.log10(getProbability(className, feature))/Math.log10(2);
+                if (chiMap.containsKey(feature)) {
+                    probabilityClass += Math.log10(getProbability(className, feature))/Math.log10(2);
+                    System.out.println("adding features");
+                }
+
+
 
             }
             double probabilityOfClass = ((numberOfDocsPerClass.get(className)) / (totalNumberOfDocs));
             double probability = probabilityClass + ((Math.log10(probabilityOfClass)) / (Math.log10(2)));
             results.put(className, probability);
         }
+
         double currentMax = 0.0;
         String firstResult = (String)results.keySet().toArray()[0];
         currentMax = results.get(firstResult);
