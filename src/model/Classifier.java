@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.*;
 import java.util.*;
 
-import static java.lang.Math.*;
+//import static java.lang.Math.*;
 import javafx.util.Pair;
 
 /*
@@ -51,9 +51,10 @@ public class Classifier implements Protocol {
             openFolder(folder, c.name());
         }
         applyThreshold();
-        this.numberOfDistinctWords = getDistinctWords().size();
+        this.numberOfDistinctWords = getUniqueWords().size();
         chiSquareMap = sortChiMap(calcChiSquare());
         removeLowChiSquares();
+
     }
 
     /**
@@ -109,7 +110,7 @@ public class Classifier implements Protocol {
     /**
      * Returns all unique words of all the classes
      */
-    public List<String> getDistinctWords() {
+    public List<String> getUniqueWords() {
         ArrayList<String> distinctWords = new ArrayList<String>();
         for (classes c : classes.values()) {
 //            String classname = c.name();
@@ -128,7 +129,7 @@ public class Classifier implements Protocol {
      *
      * @param tokenized
      */
-    public String[] getDistinctWords(String[] tokenized) {
+    public String[] getUniqueWords(String[] tokenized) {
         List<String> distinctWords = new LinkedList<String>();
         for (String word : tokenized) {
             if (!distinctWords.contains(word)) {
@@ -199,13 +200,10 @@ public class Classifier implements Protocol {
     /**
      * Calculates the Chi square value of all the words in the vocabulary
      *
-     * @return A Map of all the words with their respective chi square value.
+     * @return A Map of all the words with their corresponding chi square value.
      */
     public Map<String, Double> calcChiSquare() {
-//        for (String className : vocabulary.keySet()) {
-//            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
-//        }
-        List<String> distinctWords = getDistinctWords();
+        List<String> distinctWords = getUniqueWords();
 
         Map<String, Double> chiSquareMapping = new HashMap<>();
         for (String word : distinctWords) {
@@ -226,8 +224,8 @@ public class Classifier implements Protocol {
         }
         List<Pair<Double, Double>> wordCounts = new LinkedList<>();
         List<Double> classCounts = new LinkedList<>();
-        double w1 = 0;
-        double w2 = 0;
+        double word1 = 0;
+        double word2 = 0;
         double N = 0;
         for (String category : vocabulary.keySet()) {
             double w = 0;
@@ -236,19 +234,19 @@ public class Classifier implements Protocol {
             } else {
                 w = 0;
             }
-            w1 = w1 + w;
+            word1 = word1 + w;
             double c = numberOfWordsPerClass.get(category);
             classCounts.add(c);
             N = N + c;
             double notW = c-w;
-            w2 = w2 + notW;
+            word2 = word2 + notW;
             Pair wordPair = new Pair(w, notW);
             wordCounts.add(wordPair);
         }
         // Calculate the expected values
         List<Pair<Double, Double>> eValues = new LinkedList<>();
         for (double j : classCounts) {
-            Pair wordPair = new Pair((w1*j)/N, (w2*j)/N);
+            Pair wordPair = new Pair((word1*j)/N, (word2*j)/N);
             eValues.add(wordPair);
         }
         // Calculate the Chi-Square values
@@ -286,7 +284,7 @@ public class Classifier implements Protocol {
     /**
      * This method classifies the given document in a class
      *
-     * @param document - the document that has to be classified
+     * @param document
      */
     public String predictClass(String document){
         HashMap<String,Double> predictedClass = new HashMap<>();
@@ -340,26 +338,24 @@ public class Classifier implements Protocol {
     }
 
     /**
-     * Prepare a documents to be classified.
+     * Prepares a document to by normalizing, tokenizing, removing duplicates and removing stopwords.
      *
-     *
-     * @param document - A document that has to be set in to a vector.
-     * @return - The tokenized and normalized string array
+     * @param document
      */
    public String[] prepare(String document) {
         String normalized = normalize(document);
         String[] tokenized = tokenize(normalized);
 
-        String[] uniqueWords = getDistinctWords(tokenized);
+        String[] uniqueWords = getUniqueWords(tokenized);
 
         String[] noStopWords = removeStopwords(uniqueWords);
         return noStopWords;
     }
 
     /**
+     * Transforms the document to lower case characters only
      *
-     * @param document - A document that has to be normalized
-     * @return - The normalized document
+     * @param document
      */
     public String normalize(String document) {
         document = document.toLowerCase();
@@ -368,9 +364,9 @@ public class Classifier implements Protocol {
     }
 
     /**
+     * Creates a String[] based on words/characters separates by space
      *
-     * @param document - A document that has to be tokenized
-     * @return - A tokenized document
+     * @param document
      */
     public String[] tokenize(String document) {
         return document.split(" ");

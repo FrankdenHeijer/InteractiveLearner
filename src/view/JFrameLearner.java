@@ -270,7 +270,7 @@ public class JFrameLearner extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt){
         clearTextarea();
         content = JOptionPane.showInputDialog("What do you want to classify?");
-        if(classifiable != ""){
+        if(content != ""){
             try {
                 learner.learn(classifier, this);
                 classifier.train();
