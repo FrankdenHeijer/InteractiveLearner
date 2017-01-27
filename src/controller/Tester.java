@@ -55,7 +55,6 @@ public class Tester implements Protocol {
            while(r.readLine() != null) {
                content += r.readLine();
            }
-           System.out.println(content);
            r.close();
            String predict = c.predict(content);
            System.out.println(ClassName);

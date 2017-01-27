@@ -12,7 +12,7 @@ import static java.lang.Math.*;
  * MOD 6 - Intelligent Interaction Design
  * AI Project: Interactive Learner
  *
- * @author Merijn Kleinresingk & Frank den Heijer
+ * @author Merijn Kleeinresink & Frank den Heijer
  * Created on: 20-12-2016
  */
 public class Classifier implements Protocol {

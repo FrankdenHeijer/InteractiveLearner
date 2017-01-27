@@ -5,8 +5,8 @@ package controller;
  */
 public interface Protocol {
 
-    String FILE_LOCATION = "/Users/Frank/Desktop/blogs/";
-    String TEST_LOCATION = "/Users/Frank/Desktop/tests/";
+    String FILE_LOCATION = "/Users/Frank/Desktop/train/";
+//    String TEST_LOCATION = "/Users/Frank/Desktop/tests/";
 
     enum classes {
         M,
