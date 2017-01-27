@@ -82,11 +82,10 @@ public class Classifier implements Protocol {
         for (Object e : a) {
             if (i > 0) {
                 returnMap.put(((Map.Entry<String, Double>) e).getKey(), ((Map.Entry<String, Double>) e).getValue());
-                System.out.println(((Map.Entry<String, Double>) e).getKey() + " : "
-                        + ((Map.Entry<String, Double>) e).getValue());
                 i--;
             }
         }
+        System.out.println("\nChi Square values sorted\n");
         return returnMap;
     }
 
@@ -118,6 +117,16 @@ public class Classifier implements Protocol {
             }
         }
         return distinctWords;
+    }
+
+    public String[] getDistinctWords(String[] tokenized) {
+        List<String> distinctWords = new LinkedList<String>();
+        for (String word : tokenized) {
+            if (!distinctWords.contains(word)) {
+                distinctWords.add(word);
+            }
+        }
+        return distinctWords.toArray(new String[distinctWords.size()]);
     }
 
     /**
@@ -196,6 +205,7 @@ public class Classifier implements Protocol {
             double chiSquare = calcChiSquare(word);
             chiSquareMapping.put(word, chiSquare);
         }
+        System.out.println("\nChi Square values calculated\n");
         return chiSquareMapping;
     }
 
@@ -261,8 +271,9 @@ public class Classifier implements Protocol {
                     i++;
                 }
             }
-            System.out.println("The word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
-            System.out.println("And has " + vocabulary.get(className).keySet().size() + " different words");
+            System.out.println("\nChi Square below critical value removed from vocaulary\n");
+            System.out.println("\nThe word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
+            System.out.println("\nAnd has " + vocabulary.get(className).keySet().size() + " different words");
         }
 
     }
@@ -275,12 +286,6 @@ public class Classifier implements Protocol {
     public String predict(String document){
         HashMap<String,Double> results = new HashMap<>();
         String[] featureVector = prepare(document);
-
-//        Map<String, Double> chiSquareMapping = new HashMap<>();
-//        for (String word : featureVector) {
-//            double chiSquare = calcChiSquare(word);
-//            chiSquareMapping.put(word, chiSquare);
-//        }
 
         for(classes c : classes.values()) {
             String className = c.name();
@@ -336,8 +341,11 @@ public class Classifier implements Protocol {
    public String[] prepare(String document) {
         String normalized = normalize(document);
         String[] tokenized = tokenize(normalized);
-        tokenized = removeStopwords(tokenized);
-        return tokenized;
+
+        String[] uniqueWords = getDistinctWords(tokenized);
+
+        String[] noStopWords = removeStopwords(uniqueWords);
+        return noStopWords;
     }
 
     /**
@@ -362,19 +370,13 @@ public class Classifier implements Protocol {
     
     public String[] removeStopwords(String[] tokens) {
         int count = 0;
-        System.out.println("This is tokens length before stopwords :" + tokens.length);
         List<String> strings = new LinkedList<String>(Arrays.asList(tokens));
-        for(int i = 0; i < strings.size() - count; i++) {
-            for(int j = 0; j < stopwords.length; j++) {
-                if((strings.get(i).equals(stopwords[j]))) {
-                    count++;
-                    strings.remove(i);
-                }
+        for (int j = 0; j < stopwords.length; j++) {
+            if (strings.contains(stopwords[j])) {
+                count++;
+                strings.remove(stopwords[j]);
             }
-                
         }
-        tokens = strings.toArray(new String[strings.size()]);
-        System.out.println("This is tokens length after stopwords :" + tokens.length);
-        return tokens;
+        return strings.toArray(new String[strings.size()]);
     }
 }
