@@ -38,7 +38,7 @@ public class Tester implements Protocol {
                text += r.readLine();
            }
            r.close();
-           String pString = c.predict(text);
+           String pString = c.predictClass(text);
            System.out.println(Class);
            if(pString.equals(Class)) {
                successes = successes + 1;

@@ -36,7 +36,7 @@ public class Learner implements Protocol {
      * @throws IOException 
      */
     public static void learn(Classifier cl, JFrameLearner jf) throws IOException {
-		String prediction = cl.predict(jf.getContent());
+		String prediction = cl.predictClass(jf.getContent());
                 jf.predictionDialog(prediction);
     }
     
@@ -52,7 +52,7 @@ public class Learner implements Protocol {
                 jf.appendToTextarea("The file will be added to the corpus\n");
                 int count = file.listFiles().length + 1;
                 String textName = "ManualTest" + count;
-                String classification = cl.predict(jf.getContent());
+                String classification = cl.predictClass(jf.getContent());
                 //If prediction is alright, add a new file to the corpus
                 File newFile = new File(FILE_LOCATION + classification + "/" + textName + ".txt");
 

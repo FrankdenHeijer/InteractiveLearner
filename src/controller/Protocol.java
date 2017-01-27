@@ -13,9 +13,13 @@ public interface Protocol {
         F
     }
 
+
+    // Critical value chi-squared. It is the value for P(Chi^2 >= c) = alpha
+    // Where alpha is 0,001 and 1 degree of freedom, because of the 2 class corpus that were used in testing.
+    double CRITICAL_VALUE = 10.83;  //Minimum value for chi squared
     int SMOOTHING_K = 1;
-    int FEATURE_THRESHOLD = 5;
-    int MAX_LIMIT = 1000;
+    int FEATURE_MIN = 5;
+    int FEATURE_MAX = 1000;
     
     public final static String[] stopwords = {
                 "a"  ,

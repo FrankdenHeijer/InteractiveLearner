@@ -1,5 +1,6 @@
 package model;
 
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import controller.Protocol;
 
 import java.io.BufferedReader;
@@ -24,7 +25,6 @@ public class Classifier implements Protocol {
     private HashMap<String,Double> numberOfDocsPerClass;
     private Map<String, Double> chiSquareMap = new HashMap<>();
     private HashMap<String,Integer> numberOfWordsPerClass;
-    private final double criticalValue = 10.83;  //Minimum value for chi squared
     private int featureSize;
     private int numberOfDistinctWords;
 
@@ -78,7 +78,7 @@ public class Classifier implements Protocol {
                 i--;
             }
         }
-        System.out.println("Chi Square values sorted\n");
+        System.out.println("LOG: Chi Square values sorted\n");
         return returnMap;
     }
 
@@ -149,31 +149,30 @@ public class Classifier implements Protocol {
      */
     public void openFolder(File folder, String className) throws IOException {
         double numberOfFiles = 0;
-        for (File entry : folder.listFiles()) {
-            if (entry.isDirectory()) {
-                openFolder(entry, className);
+        for (File file : folder.listFiles()) {
+            if (file.isDirectory()) {
+                openFolder(file, className);
             } else {
-                numberOfFiles += 1;
-                BufferedReader reader = new BufferedReader(new FileReader(entry.getAbsolutePath()));
+                numberOfFiles ++;
+                BufferedReader reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
                 String content = "";
                 while (reader.readLine() != null) {
                     content += reader.readLine();
                 }
                 reader.close();
-                String[] featureVector = prepare(content);
-                for (int i = 0; i < featureVector.length; i++){
-                    String feature = featureVector[i];
+                String[] features = prepare(content);
+                for (int i = 0; i < features.length; i++){
                     HashMap<String, Integer> subSet = vocabulary.get(className);
-                    if (subSet.containsKey(feature)) {
-                        subSet.put(feature, subSet.get(feature) + 1);
+                    if (subSet.containsKey(features[i])) {
+                        subSet.put(features[i], subSet.get(features[i]) + 1);
                     } else {
-                        subSet.put(feature, 1);
+                        subSet.put(features[i], 1);
                     }
                     vocabulary.put(className, subSet);
                 }
             }
         }
-        System.out.println("Trained documents for " + className +": " + numberOfFiles);
+        System.out.println(numberOfFiles + " documents trained for " + className);
         numberOfDocsPerClass.put(className, numberOfFiles);
     }
 
@@ -183,8 +182,6 @@ public class Classifier implements Protocol {
      * @param className
      *
      * @param feature
-     *
-     * @return
      */
     public double getProbability(String className, String feature, double count) {
         double denominator = (count + (SMOOTHING_K * this.numberOfDistinctWords));
@@ -205,9 +202,9 @@ public class Classifier implements Protocol {
      * @return A Map of all the words with their respective chi square value.
      */
     public Map<String, Double> calcChiSquare() {
-        for (String className : vocabulary.keySet()) {
-            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
-        }
+//        for (String className : vocabulary.keySet()) {
+//            numberOfWordsPerClass.put(className, getNumberOfWordsPerClass(className));
+//        }
         List<String> distinctWords = getDistinctWords();
 
         Map<String, Double> chiSquareMapping = new HashMap<>();
@@ -215,7 +212,7 @@ public class Classifier implements Protocol {
             double chiSquare = calcChiSquare(word);
             chiSquareMapping.put(word, chiSquare);
         }
-        System.out.println("\nChi Square values calculated\n");
+        System.out.println("LOG: Chi Square values calculated\n");
         return chiSquareMapping;
     }
 
@@ -279,14 +276,14 @@ public class Classifier implements Protocol {
             Iterator<String> iterator = wordSet.iterator();
             while(iterator.hasNext()) {
                 String word = iterator.next();
-                if (chiMapping.get(word) != null && chiMapping.get(word) < criticalValue) {
+                if (chiMapping.get(word) != null && chiMapping.get(word) < CRITICAL_VALUE) {
                     iterator.remove();
                     i++;
                 }
             }
-            System.out.println("Chi Square valuesbelow critical value removed from vocaulary\n");
-            System.out.println("The word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
-            System.out.println("And has " + vocabulary.get(className).keySet().size() + " different words\n");
+            System.out.println("LOG: Chi Square values below critical value removed from vocaulary\n");
+            System.out.println("LOG: The word list for class " + className + " consists of " + getNumberOfWordsPerClass(className));
+            System.out.println("LOG: And has " + vocabulary.get(className).keySet().size() + " different words\n\n");
         }
 
     }
@@ -296,31 +293,34 @@ public class Classifier implements Protocol {
      *
      * @param document - the document that has to be classified
      */
-    public String predict(String document){
-        HashMap<String,Double> results = new HashMap<>();
-        String[] featureVector = prepare(document);
+    public String predictClass(String document){
+        HashMap<String,Double> predictedClass = new HashMap<>();
+        String[] features = prepare(document);
         double totalNumberOfDocs = totalNumberOfDocs();
+        // calcultate probabilities per class
         for(classes c : classes.values()) {
             String className = c.name();
             double probabilityClass = 0.0;
             double count = getNumberOfWordsPerClass(className);
-            for(String feature : featureVector) {
+            for (String feature : features) {
+                // calculate probability if features exist in chi squared mapping
                 if (chiSquareMap.containsKey(feature)) {
-                    probabilityClass += Math.log(getProbability(className, feature, count))/Math.log(2);
+                    probabilityClass += Math.log(getProbability(className, feature, count)) / Math.log(2);
                 }
             }
             double probabilityOfClass = ((numberOfDocsPerClass.get(className)) / (totalNumberOfDocs));
             double probability = probabilityClass + ((Math.log10(probabilityOfClass)) / (Math.log10(2)));
-            results.put(className, probability);
+            predictedClass.put(className, probability);
         }
 
-        double currentMax = 0.0;
-        String firstResult = (String)results.keySet().toArray()[0];
-        currentMax = results.get(firstResult);
-        String classified = firstResult;
-        for (String c : results.keySet()){
-            if (currentMax < results.get(c)){
-                currentMax = results.get(c);
+        // select class with hightes probability
+        double max = 0.0;
+        String highestProb = (String)predictedClass.keySet().toArray()[0];
+        max = predictedClass.get(highestProb);
+        String classified = highestProb;
+        for (String c : predictedClass.keySet()){
+            if (max < predictedClass.get(c)){
+                max = predictedClass.get(c);
                 classified = c;
             }
         }
@@ -336,7 +336,7 @@ public class Classifier implements Protocol {
             HashMap<String, Integer> subSet = new HashMap<String, Integer>();
             for (String s : classMap.keySet()){
                 int count = classMap.get(s);
-                if (count > FEATURE_THRESHOLD && count < MAX_LIMIT) {
+                if (count > FEATURE_MIN && count < FEATURE_MAX) {
                     subSet.put(s, count);
                 }
             }
